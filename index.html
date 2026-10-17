@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>نخور | کالری و ماکرو</title>
+    <!-- Modern Geometric Persian Font: Estedad & Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800;900&family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Estedad', 'Vazirmatn', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        sp: {
+                            bg: '#121212',
+                            surface: '#181818',
+                            card: '#242424',
+                            cardHover: '#2E2E2E',
+                            green: '#1DB954',
+                            greenLight: '#1ED760',
+                            text: '#FFFFFF',
+                            muted: '#A7A7A7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Estedad', 'Vazirmatn', sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
+            user-select: none;
+        }
+        /* Strict single-line truncation so titles never wrap into 2 ugly lines */
+        .one-line {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            display: block;
+            max-width: 100%;
+        }
+        /* Hide scrollbars for horizontal chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Smooth ring transition */
+        .cal-ring {
+            transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-sp-bg text-sp-text pb-32">
+
+    <!-- Android Safe Viewport Wrapper (prevents any edge clipping on 340px-430px screens) -->
+    <div class="w-full max-w-[420px] mx-auto min-h-screen relative overflow-x-hidden">
+
+        <!-- ==========================================
+             TAB 1: HOME (صفحه خانه فوق‌العاده خلوت و مینیمال)
+             ========================================== -->
+        <main id="view-home" class="tab-view px-4 pt-5 space-y-5">
+
+            <!-- 1. MINIMAL HERO MACRO CARD -->
+            <section class="bg-sp-surface rounded-3xl p-5 border border-white/5 shadow-xl space-y-5">
+                
+                <!-- Top Row: Calorie Ring + Remaining Numbers -->
+                <div class="flex items-center justify-between gap-4">
+                    <div class="min-w-0 flex-1 space-y-1.5">
+                        <span id="heroRemLabel" class="text-xs font-bold text-sp-muted one-line">کالری مانده امروز</span>
+                        <div class="flex items-baseline gap-2">
+                            <span id="heroRemCal" class="text-4xl font-black text-white tracking-tight">۱۱۷۰</span>
+                            <span class="text-xs font-bold text-sp-green">کالری</span>
+                        </div>
+                        <div class="flex items-center gap-3 pt-1 text-xs font-bold text-sp-muted">
+                            <span>مصرف: <strong id="heroConsumedCal" class="text-white">۹۸۰</strong></span>
+                            <span class="text-white/20">•</span>
+                            <span>هدف: <strong id="heroTargetCal" class="text-sp-green">۲۱۵۰</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Clean Circular SVG Calorie Gauge -->
+                    <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+                        <svg class="w-24 h-24 -rotate-90" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="33" stroke="#242424" stroke-width="6.5" fill="transparent"/>
+                            <circle id="heroCalRing" class="cal-ring" cx="40" cy="40" r="33" stroke="#1DB954" stroke-width="6.5"
+                                stroke-dasharray="207.3" stroke-dashoffset="207.3" stroke-linecap="round" fill="transparent"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="heroCalPct" class="text-base font-black text-white">۴۵٪</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: 3 Minimalist Macro Pills -->
+                <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-white/5">
+                    <!-- Protein -->
+                    <div class="bg-sp-card/70 rounded-2xl p-3">
+                        <div class="text-[11px] font-bold text-sp-muted one-line mb-1">پروتئین</div>
+                        <div id="heroProText" class="text-xs font-black text-white mb-2 one-line">۸۵ / ۱۷۲g</div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="heroProBar" class="h-full bg-sp-green rounded-full transition-all duration-300" style="width: 50%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Carbs -->
+                    <div class="bg-sp-card/70 rounded-2xl p-3">
+                        <div class="text-[11px] font-bold text-sp-muted one-line mb-1">کربو</div>
+                        <div id="heroCarbText" class="text-xs font-black text-white mb-2 one-line">۹۰ / ۲۱۵g</div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="heroCarbBar" class="h-full bg-sky-400 rounded-full transition-all duration-300" style="width: 42%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fat -->
+                    <div class="bg-sp-card/70 rounded-2xl p-3">
+                        <div class="text-[11px] font-bold text-sp-muted one-line mb-1">چربی</div>
+                        <div id="heroFatText" class="text-xs font-black text-white mb-2 one-line">۲۸ / ۶۷g</div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="heroFatBar" class="h-full bg-amber-400 rounded-full transition-all duration-300" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. SIMPLE WATER & WEIGHT BAR (2 Clean Mini-Cards) -->
+            <section class="grid grid-cols-2 gap-3">
+                <!-- Water Card -->
+                <div class="bg-sp-surface rounded-2xl p-3.5 border border-white/5 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <span class="text-[11px] font-bold text-sp-muted one-line">💧 آب روزانه</span>
+                        <span id="homeWaterText" class="text-xs font-black text-white one-line mt-1">۴ / ۸ لیوان</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="changeWater(-1)" class="w-7 h-7 rounded-full bg-sp-card text-white font-black text-xs flex items-center justify-center active:scale-90">-</button>
+                        <button onclick="changeWater(1)" class="w-7 h-7 rounded-full bg-sp-green text-black font-black text-xs flex items-center justify-center active:scale-90">+</button>
+                    </div>
+                </div>
+
+                <!-- Weight & Target Card -->
+                <div onclick="switchTab('profile')" class="cursor-pointer bg-sp-surface hover:bg-sp-card rounded-2xl p-3.5 border border-white/5 flex items-center justify-between gap-2 active:scale-95 transition">
+                    <div class="min-w-0">
+                        <span class="text-[11px] font-bold text-sp-muted one-line">⚖️ وزن فعلی</span>
+                        <span id="homeWeightText" class="text-xs font-black text-white one-line mt-1">۸۶ کیلو</span>
+                    </div>
+                    <div class="w-7 h-7 rounded-full bg-sp-card text-sp-green flex items-center justify-center text-xs shrink-0">
+                        ❮
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 4 COMPACT MEAL SUMMARY ROWS (Spotify-style Clean Rows) -->
+            <section class="space-y-2.5">
+                <div class="flex items-center justify-between px-1">
+                    <h2 class="text-xs font-black text-sp-muted one-line">وعده‌های امروز</h2>
+                    <button onclick="switchTab('meals')" class="text-[11px] font-bold text-sp-green one-line">مشاهده جزئیات</button>
+                </div>
+                <div id="homeMealsSummaryList" class="space-y-2">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ==========================================
+             TAB 2: FOOD SEARCH (جستجو و بانک غذا)
+             ========================================== -->
+        <main id="view-foods" class="tab-view hidden px-4 space-y-3.5 pt-3">
+            <div class="bg-sp-surface rounded-2xl p-3.5 border border-white/5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-black text-white one-line">بانک غذاهای ایرانی و ورزشی</h2>
+                    <span id="foodCountBadge" class="text-xs font-bold text-sp-green one-line">۲۲ غذا</span>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <input type="text" id="foodSearchInput" oninput="renderFoodSearchList()" placeholder="جستجوی مرغ، برنج، کباب، تخم مرغ..."
+                        class="w-full bg-sp-card text-white placeholder-sp-muted rounded-xl py-2.5 pr-9 pl-3 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-sp-green">
+                    <svg class="w-4 h-4 text-sp-muted absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Category Filter Pills -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                    <button onclick="setFoodCategory('all')" data-cat="all" class="cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-bold bg-sp-green text-black">همه</button>
+                    <button onclick="setFoodCategory('protein')" data-cat="protein" class="cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium bg-sp-card text-white">پروتئین</button>
+                    <button onclick="setFoodCategory('iranian')" data-cat="iranian" class="cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium bg-sp-card text-white">سنتی</button>
+                    <button onclick="setFoodCategory('carbs')" data-cat="carbs" class="cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium bg-sp-card text-white">کربو</button>
+                    <button onclick="setFoodCategory('snacks')" data-cat="snacks" class="cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium bg-sp-card text-white">میان‌وعده</button>
+                </div>
+            </div>
+
+            <!-- Full Tracklist of Foods -->
+            <div id="foodDatabaseList" class="space-y-1.5">
+                <!-- Populated via JS -->
+            </div>
+        </main>
+
+        <!-- ==========================================
+             TAB 3: MEALS DETAIL (مدیریت کامل وعده‌ها)
+             ========================================== -->
+        <main id="view-meals" class="tab-view hidden px-4 space-y-3.5 pt-3">
+            <div class="bg-sp-surface rounded-2xl p-4 border border-white/5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-sp-muted one-line">مجموع مصرف امروز</span>
+                        <h2 id="libraryCalHeader" class="text-base font-black text-white one-line">۰ از ۲۱۵۰ کالری</h2>
+                    </div>
+                    <button onclick="resetTodayMeals()" class="px-3 py-1.5 rounded-full bg-rose-500/15 hover:bg-rose-500/25 text-xs font-bold text-rose-400 one-line">
+                        پاکسازی امروز
+                    </button>
+                </div>
+
+                <!-- 3 Compact Macro Bars -->
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <div class="flex justify-between text-[10px] font-bold mb-1">
+                            <span class="text-sp-muted">پروتئین</span>
+                            <span id="libProVal" class="text-sp-green">۰g</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="libProBar" class="h-full bg-sp-green rounded-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <div class="flex justify-between text-[10px] font-bold mb-1">
+                            <span class="text-sp-muted">کربو</span>
+                            <span id="libCarbVal" class="text-sky-400">۰g</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="libCarbBar" class="h-full bg-sky-400 rounded-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <div class="flex justify-between text-[10px] font-bold mb-1">
+                            <span class="text-sp-muted">چربی</span>
+                            <span id="libFatVal" class="text-amber-400">۰g</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div id="libFatBar" class="h-full bg-amber-400 rounded-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mealsLibraryContainer" class="space-y-3">
+                <!-- Populated dynamically -->
+            </div>
+        </main>
+
+        <!-- ==========================================
+             TAB 4: PROFILE & WEEKLY WEIGHT CHART (پروفایل و نمودار وزن)
+             ========================================== -->
+        <main id="view-profile" class="tab-view hidden px-4 space-y-4 pt-3">
+            <div class="bg-sp-surface rounded-2xl p-4 border border-white/5 space-y-3.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-sp-green to-teal-400 flex items-center justify-center text-black font-black text-xl shrink-0 shadow-lg">
+                        ن
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-sm font-black text-white one-line">کالیبراسیون بدن و هدف</h2>
+                        <p class="text-[11px] text-sp-muted one-line">اطلاعات جدید را وارد کرده و دکمه بازشناسی را بزنید</p>
+                    </div>
+                </div>
+
+                <!-- Inputs Grid -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">وزن فعلی (کیلو)</label>
+                        <input type="number" id="inputWeight" value="86" step="0.5"
+                            class="w-full bg-black/40 rounded-lg px-2.5 py-1.5 text-sm font-black text-white focus:outline-none focus:ring-1 focus:ring-sp-green">
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">وزن هدف (کیلو)</label>
+                        <input type="number" id="inputTargetWeight" value="82" step="0.5"
+                            class="w-full bg-black/40 rounded-lg px-2.5 py-1.5 text-sm font-black text-sp-green focus:outline-none focus:ring-1 focus:ring-sp-green">
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">قد (سانتی‌متر)</label>
+                        <input type="number" id="inputHeight" value="180"
+                            class="w-full bg-black/40 rounded-lg px-2.5 py-1.5 text-sm font-black text-white focus:outline-none">
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">سن (سال)</label>
+                        <input type="number" id="inputAge" value="29"
+                            class="w-full bg-black/40 rounded-lg px-2.5 py-1.5 text-sm font-black text-white focus:outline-none">
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">جنسیت</label>
+                        <select id="inputGender"
+                            class="w-full bg-black/40 rounded-lg px-2 py-1.5 text-xs font-bold text-white focus:outline-none">
+                            <option value="male">مرد (آقا)</option>
+                            <option value="female">زن (خانم)</option>
+                        </select>
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <label class="text-[10px] text-sp-muted font-bold one-line mb-1">استراتژی رژیم</label>
+                        <select id="inputGoal"
+                            class="w-full bg-black/40 rounded-lg px-2 py-1.5 text-xs font-bold text-sp-green focus:outline-none">
+                            <option value="cut">کاهش وزن (-۵۰۰)</option>
+                            <option value="recomp">تثبیت و فرم‌دهی</option>
+                            <option value="bulk">افزایش حجم (+۳۵۰)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Activity Select -->
+                <div class="bg-sp-card p-2.5 rounded-xl">
+                    <label class="text-[10px] text-sp-muted font-bold one-line mb-1">سطح فعالیت هفتگی</label>
+                    <select id="inputActivity"
+                        class="w-full bg-black/40 rounded-lg px-2.5 py-2 text-xs font-bold text-white focus:outline-none">
+                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
+                        <option value="1.375">سبک (۱ تا ۳ روز ورزش)</option>
+                        <option value="1.55" selected>متوسط (۳ تا ۵ روز تمرین)</option>
+                        <option value="1.725">زیاد (۶ روز تمرین سنگین)</option>
+                    </select>
+                </div>
+
+                <!-- "بازشناسی" Action Button -->
+                <button onclick="recalibrateProfile()" class="w-full py-3 rounded-full bg-sp-green hover:bg-sp-greenLight active:scale-[0.98] transition text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sp-green/20">
+                    <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span class="one-line">بازشناسی و بهینه‌سازی برنامه</span>
+                </button>
+
+                <!-- Calculated BMR & TDEE Summary -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <span class="text-[10px] text-sp-muted one-line">متابولیسم پایه</span>
+                        <span id="profBmr" class="text-sm font-black text-white one-line mt-0.5">۱۸۴۰</span>
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <span class="text-[10px] text-sp-muted one-line">کالری تثبیت</span>
+                        <span id="profTdee" class="text-sm font-black text-sky-400 one-line mt-0.5">۲۶۵۰</span>
+                    </div>
+                    <div class="bg-sp-card p-2.5 rounded-xl">
+                        <span class="text-[10px] text-sp-muted one-line">سهمیه روزانه</span>
+                        <span id="profTarget" class="text-sm font-black text-sp-green one-line mt-0.5">۲۱۵۰</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Weight Tracker & Interactive Chart -->
+            <div class="bg-sp-surface rounded-2xl p-4 border border-white/5 space-y-3.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <h3 class="text-sm font-black text-white one-line">نمودار وزن هفتگی</h3>
+                        <p id="weightDiffSubtitle" class="text-[11px] text-sp-muted one-line">روند تغییرات تا وزن هدف</p>
+                    </div>
+                    <span id="weightGoalBadge" class="shrink-0 text-xs font-black text-sp-green bg-sp-green/10 px-2.5 py-1 rounded-full">هدف: ۸۲ کیلو</span>
+                </div>
+
+                <!-- Add Weekly Weight Input Row -->
+                <div class="grid grid-cols-12 gap-2">
+                    <input type="text" id="weeklyLabelInput" placeholder="هفته (مثلاً هفته ۵)"
+                        class="col-span-5 bg-sp-card rounded-xl px-2.5 py-2 text-xs font-bold text-white placeholder-sp-muted focus:outline-none focus:ring-1 focus:ring-sp-green">
+                    <input type="number" id="weeklyWeightInput" step="0.1" placeholder="وزن (84.5)"
+                        class="col-span-4 bg-sp-card rounded-xl px-2.5 py-2 text-xs font-black text-white placeholder-sp-muted focus:outline-none focus:ring-1 focus:ring-sp-green">
+                    <button onclick="addWeeklyWeightLog()" class="col-span-3 bg-sp-green text-black rounded-xl text-xs font-black active:scale-95 transition one-line">
+                        + ثبت وزن
+                    </button>
+                </div>
+
+                <!-- SVG Line & Area Chart -->
+                <div class="bg-sp-card rounded-xl p-3 border border-white/5">
+                    <svg id="weeklyWeightSvg" viewBox="0 0 320 150" class="w-full h-36 overflow-visible"></svg>
+                </div>
+
+                <!-- Logged Weeks History Pills -->
+                <div id="weeklyWeightHistoryList" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ==========================================
+         ANDROID FIXED BOTTOM TASKBAR (تسک‌بار پایین صفحه)
+         ========================================== -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#121212]/95 backdrop-blur-md border-t border-white/10 shadow-[0_-8px_25px_rgba(0,0,0,0.85)]">
+        <div class="w-full max-w-[420px] mx-auto h-16 grid grid-cols-5 items-center px-2">
+            
+            <!-- 1. Home -->
+            <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-sp-green">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.71 2.29a1 1 0 00-1.42 0l-9 9a1 1 0 000 1.42A1 1 0 003 13h1v7a2 2 0 002 2h12a2 2 0 002-2v-7h1a1 1 0 00.71-1.71l-9-9z"/>
+                </svg>
+                <span class="text-[10px] font-bold one-line">خانه</span>
+            </button>
+
+            <!-- 2. Search / Food Bank -->
+            <button onclick="switchTab('foods')" id="nav-foods" class="nav-btn flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-sp-muted hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+                </svg>
+                <span class="text-[10px] font-bold one-line">بانک غذا</span>
+            </button>
+
+            <!-- 3. Meals -->
+            <button onclick="switchTab('meals')" id="nav-meals" class="nav-btn flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-sp-muted hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6v12M9 6v12M14 6l5 12"/>
+                </svg>
+                <span class="text-[10px] font-bold one-line">وعده‌ها</span>
+            </button>
+
+            <!-- 4. Profile / Goals -->
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-sp-muted hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-[10px] font-bold one-line">پروفایل</span>
+            </button>
+
+            <!-- 5. Create (+ Custom Food) -->
+            <button onclick="openCustomModal()" class="flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-sp-muted hover:text-white">
+                <div class="w-6 h-6 rounded-full bg-sp-green/20 text-sp-green flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </div>
+                <span class="text-[10px] font-bold one-line">غذای جدید</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         PORTION ADJUSTMENT BOTTOM SHEET (تنظیم مقدار غذا)
+         ========================================== -->
+    <div id="portionModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/75 backdrop-blur-xs p-3">
+        <div class="bg-sp-surface border border-white/10 rounded-2xl max-w-[390px] w-full p-4 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div id="sheetEmoji" class="w-11 h-11 rounded-xl bg-sp-card flex items-center justify-center text-xl shrink-0">🍗</div>
+                    <div class="min-w-0">
+                        <h3 id="sheetFoodName" class="text-sm font-black text-white one-line">سینه مرغ</h3>
+                        <p id="sheetFoodMacros" class="text-xs text-sp-muted one-line">۱۶۵ کالری • ۳۱ گرم پروتئین</p>
+                    </div>
+                </div>
+                <button onclick="closePortionModal()" class="w-8 h-8 rounded-full bg-sp-card text-sp-muted flex items-center justify-center">✕</button>
+            </div>
+
+            <!-- Select Meal Slot -->
+            <div class="grid grid-cols-4 gap-1.5 bg-sp-bg p-1 rounded-xl">
+                <button onclick="setSheetMeal('breakfast')" id="sheet-meal-breakfast" class="sheet-meal-btn py-1.5 rounded-lg text-xs font-bold one-line">صبحانه</button>
+                <button onclick="setSheetMeal('lunch')" id="sheet-meal-lunch" class="sheet-meal-btn py-1.5 rounded-lg text-xs font-bold one-line">ناهار</button>
+                <button onclick="setSheetMeal('dinner')" id="sheet-meal-dinner" class="sheet-meal-btn py-1.5 rounded-lg text-xs font-bold one-line">شام</button>
+                <button onclick="setSheetMeal('snacks')" id="sheet-meal-snacks" class="sheet-meal-btn py-1.5 rounded-lg text-xs font-bold one-line">میان‌وعده</button>
+            </div>
+
+            <!-- Amount Stepper -->
+            <div class="flex items-center justify-between bg-sp-card rounded-xl p-2.5">
+                <button onclick="adjustSheetAmount(-1)" class="w-10 h-10 rounded-lg bg-sp-bg text-white font-black text-lg flex items-center justify-center active:scale-95">-</button>
+                <div class="text-center">
+                    <span id="sheetAmountDisplay" class="text-lg font-black text-sp-green">۱۰۰</span>
+                    <span id="sheetUnitDisplay" class="text-xs font-bold text-sp-muted mr-1">گرم</span>
+                </div>
+                <button onclick="adjustSheetAmount(1)" class="w-10 h-10 rounded-lg bg-sp-bg text-white font-black text-lg flex items-center justify-center active:scale-95">+</button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="saveSheetPortion()" class="flex-1 py-2.5 rounded-full bg-sp-green text-black font-black text-xs active:scale-95 transition one-line">
+                    ثبت در وعده انتخابی
+                </button>
+                <button onclick="removeSheetFood()" id="sheetRemoveBtn" class="px-4 py-2.5 rounded-full bg-rose-500/20 text-rose-400 font-bold text-xs one-line">
+                    حذف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CUSTOM FOOD MODAL (+ ساختن غذای جدید)
+         ========================================== -->
+    <div id="customFoodModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+        <div class="bg-sp-surface border border-white/10 rounded-2xl max-w-[390px] w-full p-4 space-y-3.5 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-black text-white one-line">افزودن خوراکی جدید به بانک</h3>
+                <button onclick="closeCustomModal()" class="w-7 h-7 rounded-full bg-sp-card text-sp-muted text-xs">✕</button>
+            </div>
+            <form onsubmit="handleSaveCustomFood(event)" class="space-y-2.5">
+                <input type="text" id="custName" required maxlength="22" placeholder="نام کوتاه غذا (مثلاً: کوکو سبزی)"
+                    class="w-full bg-sp-card rounded-xl px-3 py-2 text-xs font-bold text-white placeholder-sp-muted focus:outline-none focus:ring-1 focus:ring-sp-green">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="custUnit" required value="گرم" placeholder="واحد (گرم/عدد)"
+                        class="w-full bg-sp-card rounded-xl px-3 py-2 text-xs font-bold text-white">
+                    <input type="number" id="custBase" required value="100" placeholder="مقدار پایه"
+                        class="w-full bg-sp-card rounded-xl px-3 py-2 text-xs font-bold text-white">
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <input type="number" id="custCal" required placeholder="کالری" class="bg-sp-card rounded-xl p-2 text-xs font-bold text-center text-white">
+                    <input type="number" id="custPro" required placeholder="پروتئین" class="bg-sp-card rounded-xl p-2 text-xs font-bold text-center text-sp-green">
+                    <input type="number" id="custCarb" required placeholder="کربو" class="bg-sp-card rounded-xl p-2 text-xs font-bold text-center text-sky-400">
+                    <input type="number" id="custFat" required placeholder="چربی" class="bg-sp-card rounded-xl p-2 text-xs font-bold text-center text-amber-400">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-full bg-sp-green text-black font-black text-xs one-line">
+                    ذخیره و افزودن به امروز
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Minimal Toast -->
+    <div id="spToast" class="fixed top-16 inset-x-0 z-50 flex justify-center pointer-events-none opacity-0 transition-opacity duration-300 px-4">
+        <div id="spToastText" class="bg-sp-green text-black font-black text-xs px-4 py-2 rounded-full shadow-lg one-line">
+            انجام شد
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. PERSIAN DIGITS HELPER
+        // ==========================================
+        const pDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        function faNum(n) {
+            if (n === null || n === undefined || isNaN(n)) return '۰';
+            const r = Math.round(n * 10) / 10;
+            return r.toString().replace(/\d/g, d => pDigits[d]);
+        }
+
+        // ==========================================
+        // 2. CONCISE 1-LINE IRANIAN & FITNESS FOODS
+        // ==========================================
+        const DEFAULT_FOODS = [
+            { id: 'f1', name: 'سینه مرغ', emoji: '🍗', color: 'from-orange-600 to-amber-800', category: 'protein', unitName: 'گرم', baseAmount: 100, step: 50, cal: 165, pro: 31, carb: 0, fat: 3.6 },
+            { id: 'f2', name: 'تخم مرغ آب‌پز', emoji: '🥚', color: 'from-amber-500 to-yellow-700', category: 'protein', unitName: 'عدد', baseAmount: 1, step: 1, cal: 78, pro: 6.3, carb: 0.6, fat: 5.3 },
+            { id: 'f3', name: 'برنج کته', emoji: '🍚', color: 'from-slate-500 to-zinc-700', category: 'carbs', unitName: 'گرم', baseAmount: 100, step: 50, cal: 130, pro: 2.7, carb: 28, fat: 0.5 },
+            { id: 'f4', name: 'پروتئین وی', emoji: '⚡', color: 'from-indigo-600 to-purple-800', category: 'snacks', unitName: 'اسکوپ', baseAmount: 1, step: 0.5, cal: 120, pro: 24, carb: 3, fat: 1.5 },
+            { id: 'f5', name: 'کباب کوبیده', emoji: '🍢', color: 'from-red-700 to-rose-900', category: 'iranian', unitName: 'سیخ', baseAmount: 1, step: 1, cal: 275, pro: 19, carb: 2, fat: 21 },
+            { id: 'f6', name: 'جوجه کباب', emoji: '🍗', color: 'from-yellow-500 to-orange-700', category: 'iranian', unitName: 'سیخ', baseAmount: 1, step: 0.5, cal: 310, pro: 54, carb: 2, fat: 9 },
+            { id: 'f7', name: 'قورمه سبزی', emoji: '🍲', color: 'from-emerald-700 to-green-950', category: 'iranian', unitName: 'قاشق', baseAmount: 4, step: 2, cal: 180, pro: 11, carb: 9, fat: 11 },
+            { id: 'f8', name: 'نان سنگک', emoji: '🫓', color: 'from-amber-700 to-stone-800', category: 'carbs', unitName: 'کف دست', baseAmount: 1, step: 1, cal: 78, pro: 2.8, carb: 16, fat: 0.4 },
+            { id: 'f9', name: 'فیله گوساله', emoji: '🥩', color: 'from-rose-700 to-red-950', category: 'protein', unitName: 'گرم', baseAmount: 100, step: 50, cal: 215, pro: 28, carb: 0, fat: 10.5 },
+            { id: 'f10', name: 'تن ماهی رژیمی', emoji: '🐟', color: 'from-cyan-600 to-blue-900', category: 'protein', unitName: 'قوطی', baseAmount: 1, step: 0.5, cal: 155, pro: 32, carb: 0, fat: 2.5 },
+            { id: 'f11', name: 'ماهی سالمون', emoji: '🍣', color: 'from-pink-500 to-rose-700', category: 'protein', unitName: 'گرم', baseAmount: 100, step: 50, cal: 206, pro: 22, carb: 0, fat: 12 },
+            { id: 'f12', name: 'سفیده تخم مرغ', emoji: '🥚', color: 'from-sky-500 to-indigo-700', category: 'protein', unitName: 'عدد', baseAmount: 2, step: 1, cal: 34, pro: 7.2, carb: 0.4, fat: 0.2 },
+            { id: 'f13', name: 'خورشت قیمه', emoji: '🍛', color: 'from-orange-600 to-red-800', category: 'iranian', unitName: 'قاشق', baseAmount: 4, step: 2, cal: 165, pro: 10, carb: 13, fat: 8 },
+            { id: 'f14', name: 'عدسی خانگی', emoji: '🥣', color: 'from-teal-700 to-emerald-900', category: 'iranian', unitName: 'کاسه', baseAmount: 1, step: 0.5, cal: 230, pro: 16, carb: 36, fat: 2.5 },
+            { id: 'f15', name: 'جو دوسر (اوتمیل)', emoji: '🌾', color: 'from-yellow-600 to-amber-800', category: 'carbs', unitName: 'گرم', baseAmount: 50, step: 25, cal: 194, pro: 8.5, carb: 33, fat: 3.5 },
+            { id: 'f16', name: 'سیب زمینی آب‌پز', emoji: '🥔', color: 'from-amber-500 to-orange-700', category: 'carbs', unitName: 'گرم', baseAmount: 100, step: 50, cal: 87, pro: 1.9, carb: 20, fat: 0.1 },
+            { id: 'f17', name: 'ماست یونانی', emoji: '🥛', color: 'from-blue-500 to-indigo-800', category: 'snacks', unitName: 'گرم', baseAmount: 100, step: 50, cal: 95, pro: 10, carb: 4, fat: 4 },
+            { id: 'f18', name: 'کره بادام زمینی', emoji: '🥜', color: 'from-amber-600 to-yellow-900', category: 'snacks', unitName: 'قاشق', baseAmount: 1, step: 1, cal: 94, pro: 4, carb: 3.2, fat: 8 },
+            { id: 'f19', name: 'موز متوسط', emoji: '🍌', color: 'from-yellow-400 to-amber-600', category: 'carbs', unitName: 'عدد', baseAmount: 1, step: 1, cal: 105, pro: 1.3, carb: 27, fat: 0.4 },
+            { id: 'f20', name: 'بادام درختی', emoji: '🌰', color: 'from-stone-600 to-neutral-800', category: 'snacks', unitName: 'عدد', baseAmount: 10, step: 5, cal: 70, pro: 2.5, carb: 2.5, fat: 6 },
+            { id: 'f21', name: 'پنیر کم‌چرب', emoji: '🧀', color: 'from-cyan-500 to-teal-700', category: 'snacks', unitName: 'واحد', baseAmount: 1, step: 1, cal: 62, pro: 5.2, carb: 1, fat: 4.2 },
+            { id: 'f22', name: 'سالاد شیرازی', emoji: '🥗', color: 'from-green-500 to-emerald-800', category: 'iranian', unitName: 'کاسه', baseAmount: 1, step: 1, cal: 45, pro: 1.5, carb: 9, fat: 0.3 }
+        ];
+
+        const STORAGE_KEY = 'nakhor_android_v3';
+
+        const MEAL_META = {
+            breakfast: { title: 'صبحانه', icon: '☀️' },
+            lunch: { title: 'ناهار', icon: '🍛' },
+            dinner: { title: 'شام', icon: '🌙' },
+            snacks: { title: 'میان‌وعده', icon: '⚡' }
+        };
+
+        let state = {
+            currentTab: 'home',
+            foodCategory: 'all',
+            waterGlasses: 4,
+            profile: {
+                weight: 86,
+                targetWeight: 82,
+                height: 180,
+                age: 29,
+                gender: 'male',
+                activity: 1.55,
+                goal: 'cut'
+            },
+            weightHistory: [
+                { id: 'w1', label: 'هفته ۱', weight: 87.5 },
+                { id: 'w2', label: 'هفته ۲', weight: 86.8 },
+                { id: 'w3', label: 'هفته ۳', weight: 86.2 },
+                { id: 'w4', label: 'هفته ۴', weight: 86.0 }
+            ],
+            customFoods: [],
+            meals: {
+                breakfast: [
+                    { uid: 'm1', foodId: 'f2', amount: 3 },
+                    { uid: 'm2', foodId: 'f8', amount: 2 }
+                ],
+                lunch: [
+                    { uid: 'm3', foodId: 'f1', amount: 200 },
+                    { uid: 'm4', foodId: 'f3', amount: 150 }
+                ],
+                dinner: [
+                    { uid: 'm5', foodId: 'f10', amount: 1 }
+                ],
+                snacks: [
+                    { uid: 'm6', foodId: 'f4', amount: 1 }
+                ]
+            }
+        };
+
+        let activeSheet = {
+            foodId: 'f1',
+            mealKey: 'lunch',
+            amount: 100
+        };
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state = {
+                        ...state,
+                        ...parsed,
+                        profile: { ...state.profile, ...(parsed.profile || {}) },
+                        weightHistory: (parsed.weightHistory && parsed.weightHistory.length) ? parsed.weightHistory : state.weightHistory
+                    };
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) { console.error(e); }
+        }
+
+        function getAllFoods() {
+            return [...state.customFoods, ...DEFAULT_FOODS];
+        }
+
+        // ==========================================
+        // 3. SCIENTIFIC MACRO CALCULATIONS
+        // ==========================================
+        function getTargets() {
+            const p = state.profile;
+            let bmr = (10 * p.weight) + (6.25 * p.height) - (5 * p.age);
+            bmr += (p.gender === 'male') ? 5 : -161;
+            const tdee = Math.round(bmr * p.activity);
+
+            let cal = tdee;
+            if (p.goal === 'cut') cal = Math.max(1200, tdee - 500);
+            else if (p.goal === 'bulk') cal = tdee + 350;
+
+            const pro = Math.round((cal * 0.32) / 4);
+            const carb = Math.round((cal * 0.40) / 4);
+            const fat = Math.round((cal * 0.28) / 9);
+
+            return { bmr: Math.round(bmr), tdee, cal, pro, carb, fat };
+        }
+
+        function getConsumed() {
+            const foods = getAllFoods();
+            let cal = 0, pro = 0, carb = 0, fat = 0;
+
+            Object.keys(state.meals).forEach(mKey => {
+                state.meals[mKey].forEach(item => {
+                    const f = foods.find(x => x.id === item.foodId);
+                    if (f) {
+                        const ratio = item.amount / f.baseAmount;
+                        cal += f.cal * ratio;
+                        pro += f.pro * ratio;
+                        carb += f.carb * ratio;
+                        fat += f.fat * ratio;
+                    }
+                });
+            });
+
+            return {
+                cal: Math.round(cal),
+                pro: Math.round(pro),
+                carb: Math.round(carb),
+                fat: Math.round(fat)
+            };
+        }
+
+        function isFoodInTodayMeals(foodId) {
+            for (const mk of Object.keys(state.meals)) {
+                const found = state.meals[mk].find(i => i.foodId === foodId);
+                if (found) return { mealKey: mk, item: found };
+            }
+            return null;
+        }
+
+        // ==========================================
+        // 4. TAB NAVIGATION
+        // ==========================================
+        function switchTab(tab) {
+            state.currentTab = tab;
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${tab}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-sp-green');
+                btn.classList.add('text-sp-muted');
+            });
+            const navBtn = document.getElementById(`nav-${tab}`);
+            if (navBtn) {
+                navBtn.classList.remove('text-sp-muted');
+                navBtn.classList.add('text-sp-green');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 5. RENDER DASHBOARD & MEALS
+        // ==========================================
+        function renderHeroAndStats() {
+            const t = getTargets();
+            const c = getConsumed();
+            const remCal = t.cal - c.cal;
+            const pct = Math.min(100, Math.round((c.cal / Math.max(1, t.cal)) * 100));
+
+            document.getElementById('headerTargetBadge').textContent = `${faNum(t.cal)} کالری`;
+
+            const remEl = document.getElementById('heroRemCal');
+            const remLabel = document.getElementById('heroRemLabel');
+            if (remCal >= 0) {
+                remEl.textContent = faNum(remCal);
+                remEl.className = 'text-4xl font-black text-white tracking-tight';
+                remLabel.textContent = 'کالری مانده امروز';
+            } else {
+                remEl.textContent = faNum(Math.abs(remCal));
+                remEl.className = 'text-4xl font-black text-rose-400 tracking-tight';
+                remLabel.textContent = 'کالری مازاد امروز';
+            }
+
+            document.getElementById('heroConsumedCal').textContent = faNum(c.cal);
+            document.getElementById('heroTargetCal').textContent = faNum(t.cal);
+
+            // SVG Ring (Circumference = 2 * PI * 33 ≈ 207.3)
+            const circumference = 207.3;
+            const offset = circumference - (pct / 100) * circumference;
+            const ring = document.getElementById('heroCalRing');
+            ring.style.strokeDashoffset = offset;
+            ring.setAttribute('stroke', remCal < 0 ? '#FB7185' : '#1DB954');
+            document.getElementById('heroCalPct').textContent = `${faNum(pct)}٪`;
+
+            // 3 Macro Pillars
+            document.getElementById('heroProText').textContent = `${faNum(c.pro)} / ${faNum(t.pro)}g`;
+            document.getElementById('heroProBar').style.width = `${Math.min(100, (c.pro / Math.max(1, t.pro)) * 100)}%`;
+
+            document.getElementById('heroCarbText').textContent = `${faNum(c.carb)} / ${faNum(t.carb)}g`;
+            document.getElementById('heroCarbBar').style.width = `${Math.min(100, (c.carb / Math.max(1, t.carb)) * 100)}%`;
+
+            document.getElementById('heroFatText').textContent = `${faNum(c.fat)} / ${faNum(t.fat)}g`;
+            document.getElementById('heroFatBar').style.width = `${Math.min(100, (c.fat / Math.max(1, t.fat)) * 100)}%`;
+
+            // Compact Water & Weight Cards
+            document.getElementById('homeWaterText').textContent = `${faNum(state.waterGlasses)} / ۸ لیوان`;
+            document.getElementById('homeWeightText').textContent = `${faNum(state.profile.weight)} کیلو`;
+
+            // Meals Tab Header
+            document.getElementById('libraryCalHeader').textContent = `${faNum(c.cal)} از ${faNum(t.cal)} کالری`;
+            document.getElementById('libProVal').textContent = `${faNum(c.pro)}/${faNum(t.pro)}g`;
+            document.getElementById('libProBar').style.width = `${Math.min(100, (c.pro / Math.max(1, t.pro)) * 100)}%`;
+            document.getElementById('libCarbVal').textContent = `${faNum(c.carb)}/${faNum(t.carb)}g`;
+            document.getElementById('libCarbBar').style.width = `${Math.min(100, (c.carb / Math.max(1, t.carb)) * 100)}%`;
+            document.getElementById('libFatVal').textContent = `${faNum(c.fat)}/${faNum(t.fat)}g`;
+            document.getElementById('libFatBar').style.width = `${Math.min(100, (c.fat / Math.max(1, t.fat)) * 100)}%`;
+
+            // Profile Tab Stats
+            document.getElementById('profBmr').textContent = faNum(t.bmr);
+            document.getElementById('profTdee').textContent = faNum(t.tdee);
+            document.getElementById('profTarget').textContent = faNum(t.cal);
+        }
+
+        function renderHomeMealsCards() {
+            const container = document.getElementById('homeMealsSummaryList');
+            const allFoods = getAllFoods();
+
+            container.innerHTML = Object.keys(MEAL_META).map(mk => {
+                const meta = MEAL_META[mk];
+                const items = state.meals[mk] || [];
+
+                let mealCal = 0;
+                let mealPro = 0;
+
+                items.forEach(item => {
+                    const f = allFoods.find(x => x.id === item.foodId);
+                    if (f) {
+                        const ratio = item.amount / f.baseAmount;
+                        mealCal += Math.round(f.cal * ratio);
+                        mealPro += Math.round(f.pro * ratio);
+                    }
+                });
+
+                const subText = items.length > 0
+                    ? `${faNum(mealCal)} کالری • ${faNum(mealPro)}g پروتئین`
+                    : 'بدون خوراکی ثبت‌شده';
+
+                return `
+                    <div class="bg-sp-surface hover:bg-sp-card transition rounded-2xl p-3 border border-white/5 flex items-center justify-between gap-3">
+                        <div onclick="switchTab('meals')" class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer">
+                            <div class="w-11 h-11 rounded-xl bg-sp-card flex items-center justify-center text-lg shrink-0">
+                                ${meta.icon}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-black text-white one-line">${meta.title}</div>
+                                <div class="text-[11px] font-bold ${items.length > 0 ? 'text-sp-green' : 'text-sp-muted'} one-line mt-0.5">${subText}</div>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('foods')" aria-label="افزودن به ${meta.title}" class="w-8 h-8 rounded-full bg-sp-card hover:bg-sp-green hover:text-black text-sp-green font-black text-base flex items-center justify-center shrink-0 active:scale-90 transition">
+                            +
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Spotify Tracklist Row Generator for Food Bank & Meals Tab
+        function createTrackRowHtml(food, loggedInfo) {
+            const isChecked = !!loggedInfo;
+            const amount = isChecked ? loggedInfo.item.amount : food.baseAmount;
+            const factor = amount / food.baseAmount;
+            const cal = Math.round(food.cal * factor);
+            const pro = Math.round(food.pro * factor);
+            const mealLabel = isChecked ? MEAL_META[loggedInfo.mealKey].title : `${faNum(food.baseAmount)} ${food.unitName}`;
+
+            return `
+                <div class="flex items-center justify-between gap-2.5 py-2 px-2 rounded-xl bg-sp-surface/60 hover:bg-sp-card transition border border-white/5">
+                    <div onclick="openPortionModal('${food.id}')" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${food.color || 'from-zinc-700 to-zinc-900'} flex items-center justify-center text-lg shrink-0 shadow">
+                            ${food.emoji || '🍽️'}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-xs font-extrabold ${isChecked ? 'text-sp-green' : 'text-white'} one-line">${food.name}</div>
+                            <div class="text-[11px] font-medium text-sp-muted one-line mt-0.5">
+                                ${mealLabel} • ${faNum(cal)} کالری • ${faNum(pro)}g پروتئین
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="quickToggleFood('${food.id}')" aria-label="Toggle Food"
+                            class="w-7 h-7 rounded-full flex items-center justify-center transition active:scale-90 ${
+                                isChecked
+                                ? 'bg-sp-green text-black'
+                                : 'border-2 border-sp-muted text-transparent hover:border-white'
+                            }">
+                            <svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </button>
+
+                        <button onclick="openPortionModal('${food.id}')" class="text-sp-muted hover:text-white p-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setFoodCategory(cat) {
+            state.foodCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                if (b.dataset.cat === cat) {
+                    b.className = 'cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-bold bg-sp-green text-black';
+                } else {
+                    b.className = 'cat-btn shrink-0 text-xs px-3.5 py-1.5 rounded-full font-medium bg-sp-card text-white';
+                }
+            });
+            renderFoodSearchList();
+        }
+
+        function renderFoodSearchList() {
+            const q = (document.getElementById('foodSearchInput').value || '').trim().toLowerCase();
+            const allFoods = getAllFoods();
+            const filtered = allFoods.filter(f => {
+                const catOk = state.foodCategory === 'all' || f.category === state.foodCategory;
+                const qOk = !q || f.name.toLowerCase().includes(q);
+                return catOk && qOk;
+            });
+
+            document.getElementById('foodCountBadge').textContent = `${faNum(filtered.length)} غذا`;
+            const container = document.getElementById('foodDatabaseList');
+            container.innerHTML = filtered.map(f => createTrackRowHtml(f, isFoodInTodayMeals(f.id))).join('');
+        }
+
+        function renderMealsLibrary() {
+            const container = document.getElementById('mealsLibraryContainer');
+            const allFoods = getAllFoods();
+
+            container.innerHTML = Object.keys(MEAL_META).map(mk => {
+                const items = state.meals[mk] || [];
+                let mealCal = 0;
+                const rows = items.map(item => {
+                    const f = allFoods.find(x => x.id === item.foodId);
+                    if (!f) return '';
+                    mealCal += Math.round(f.cal * (item.amount / f.baseAmount));
+                    return createTrackRowHtml(f, { mealKey: mk, item });
+                }).join('');
+
+                return `
+                    <div class="bg-sp-surface rounded-2xl p-3.5 border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-2">
+                            <span class="text-xs font-black text-white one-line">${MEAL_META[mk].icon} ${MEAL_META[mk].title}</span>
+                            <span class="text-xs font-bold text-sp-green one-line">${faNum(mealCal)} کالری</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            ${rows || `<div onclick="switchTab('foods')" class="text-xs text-sp-muted py-3 text-center cursor-pointer one-line">+ افزودن خوراکی به ${MEAL_META[mk].title}</div>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // 6. USER INTERACTIONS
+        // ==========================================
+        function quickAddOneTap(foodId, defaultMealKey) {
+            const food = getAllFoods().find(f => f.id === foodId);
+            if (!food) return;
+
+            const existing = state.meals[defaultMealKey].find(i => i.foodId === foodId);
+            if (existing) {
+                existing.amount = Math.round((existing.amount + food.step) * 10) / 10;
+            } else {
+                state.meals[defaultMealKey].push({
+                    uid: 'u_' + Date.now(),
+                    foodId: food.id,
+                    amount: food.baseAmount
+                });
+            }
+            saveState();
+            renderAll();
+            showToast(`+ ${food.name} به ${MEAL_META[defaultMealKey].title} اضافه شد ✓`);
+        }
+
+        function quickToggleFood(foodId) {
+            const existing = isFoodInTodayMeals(foodId);
+            const food = getAllFoods().find(f => f.id === foodId);
+            if (!food) return;
+
+            if (existing) {
+                state.meals[existing.mealKey] = state.meals[existing.mealKey].filter(i => i.foodId !== foodId);
+                showToast(`${food.name} حذف شد`);
+            } else {
+                state.meals.lunch.push({
+                    uid: 'u_' + Date.now(),
+                    foodId: food.id,
+                    amount: food.baseAmount
+                });
+                showToast(`${food.name} اضافه شد ✓`);
+            }
+            saveState();
+            renderAll();
+        }
+
+        function changeWater(delta) {
+            state.waterGlasses = Math.max(0, Math.min(14, state.waterGlasses + delta));
+            saveState();
+            renderHeroAndStats();
+            showToast(`آب روزانه: ${faNum(state.waterGlasses)} لیوان 💧`);
+        }
+
+        function openPortionModal(foodId, preferredMealKey) {
+            const food = getAllFoods().find(f => f.id === foodId);
+            if (!food) return;
+
+            const existing = isFoodInTodayMeals(foodId);
+            activeSheet.foodId = foodId;
+            activeSheet.mealKey = preferredMealKey || (existing ? existing.mealKey : 'lunch');
+            activeSheet.amount = existing ? existing.item.amount : food.baseAmount;
+
+            document.getElementById('sheetEmoji').textContent = food.emoji || '🍽️';
+            document.getElementById('sheetFoodName').textContent = food.name;
+            document.getElementById('sheetRemoveBtn').style.display = existing ? 'block' : 'none';
+
+            updateSheetDisplay();
+            const modal = document.getElementById('portionModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePortionModal() {
+            const modal = document.getElementById('portionModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function setSheetMeal(mk) {
+            activeSheet.mealKey = mk;
+            updateSheetDisplay();
+        }
+
+        function adjustSheetAmount(dir) {
+            const food = getAllFoods().find(f => f.id === activeSheet.foodId);
+            if (!food) return;
+            const step = food.step || (food.baseAmount >= 50 ? 25 : 0.5);
+            activeSheet.amount = Math.max(step, Math.round((activeSheet.amount + dir * step) * 10) / 10);
+            updateSheetDisplay();
+        }
+
+        function updateSheetDisplay() {
+            const food = getAllFoods().find(f => f.id === activeSheet.foodId);
+            if (!food) return;
+            const factor = activeSheet.amount / food.baseAmount;
+            const cal = Math.round(food.cal * factor);
+            const pro = Math.round(food.pro * factor * 10) / 10;
+
+            document.getElementById('sheetFoodMacros').textContent = `${faNum(cal)} کالری • ${faNum(pro)} گرم پروتئین`;
+            document.getElementById('sheetAmountDisplay').textContent = faNum(activeSheet.amount);
+            document.getElementById('sheetUnitDisplay').textContent = food.unitName;
+
+            document.querySelectorAll('.sheet-meal-btn').forEach(btn => {
+                btn.className = 'sheet-meal-btn py-1.5 rounded-lg text-xs font-bold text-sp-muted one-line';
+            });
+            const activeBtn = document.getElementById(`sheet-meal-${activeSheet.mealKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'sheet-meal-btn py-1.5 rounded-lg text-xs font-black bg-sp-green text-black one-line';
+            }
+        }
+
+        function saveSheetPortion() {
+            Object.keys(state.meals).forEach(mk => {
+                state.meals[mk] = state.meals[mk].filter(i => i.foodId !== activeSheet.foodId);
+            });
+            state.meals[activeSheet.mealKey].push({
+                uid: 'u_' + Date.now(),
+                foodId: activeSheet.foodId,
+                amount: activeSheet.amount
+            });
+            saveState();
+            closePortionModal();
+            renderAll();
+            showToast('در برنامه امروز ثبت شد ✓');
+        }
+
+        function removeSheetFood() {
+            Object.keys(state.meals).forEach(mk => {
+                state.meals[mk] = state.meals[mk].filter(i => i.foodId !== activeSheet.foodId);
+            });
+            saveState();
+            closePortionModal();
+            renderAll();
+            showToast('حذف شد');
+        }
+
+        function applyDietPack(packName) {
+            if (packName === 'cutPack') {
+                state.meals = {
+                    breakfast: [{ uid: 'p1', foodId: 'f2', amount: 3 }, { uid: 'p2', foodId: 'f8', amount: 1 }],
+                    lunch: [{ uid: 'p3', foodId: 'f1', amount: 200 }, { uid: 'p4', foodId: 'f22', amount: 1 }],
+                    dinner: [{ uid: 'p5', foodId: 'f10', amount: 1 }, { uid: 'p6', foodId: 'f17', amount: 100 }],
+                    snacks: [{ uid: 'p7', foodId: 'f4', amount: 1 }]
+                };
+                showToast('پکیج چربی‌سوزی بارگذاری شد 🔥');
+            } else if (packName === 'musclePack') {
+                state.meals = {
+                    breakfast: [{ uid: 'p1', foodId: 'f2', amount: 4 }, { uid: 'p2', foodId: 'f15', amount: 100 }],
+                    lunch: [{ uid: 'p3', foodId: 'f1', amount: 250 }, { uid: 'p4', foodId: 'f3', amount: 250 }],
+                    dinner: [{ uid: 'p5', foodId: 'f9', amount: 200 }, { uid: 'p6', foodId: 'f16', amount: 200 }],
+                    snacks: [{ uid: 'p7', foodId: 'f4', amount: 1.5 }, { uid: 'p8', foodId: 'f18', amount: 2 }]
+                };
+                showToast('پکیج عضله‌ساز بارگذاری شد 💪');
+            } else {
+                state.meals = {
+                    breakfast: [{ uid: 'p1', foodId: 'f21', amount: 1 }, { uid: 'p2', foodId: 'f8', amount: 2 }],
+                    lunch: [{ uid: 'p3', foodId: 'f6', amount: 1 }, { uid: 'p4', foodId: 'f3', amount: 200 }],
+                    dinner: [{ uid: 'p5', foodId: 'f7', amount: 4 }, { uid: 'p6', foodId: 'f22', amount: 1 }],
+                    snacks: [{ uid: 'p7', foodId: 'f20', amount: 10 }]
+                };
+                showToast('پکیج سنتی ایرانی بارگذاری شد 🍛');
+            }
+            saveState();
+            renderAll();
+        }
+
+        function resetTodayMeals() {
+            state.meals = { breakfast: [], lunch: [], dinner: [], snacks: [] };
+            state.waterGlasses = 0;
+            saveState();
+            renderAll();
+            showToast('روز جدید شروع شد! وعده‌ها صفر شدند ✨');
+        }
+
+        // "بازشناسی" Button Handler
+        function recalibrateProfile() {
+            const newW = parseFloat(document.getElementById('inputWeight').value) || 86;
+            const newTargetW = parseFloat(document.getElementById('inputTargetWeight').value) || 82;
+            const newH = parseFloat(document.getElementById('inputHeight').value) || 180;
+            const newAge = parseFloat(document.getElementById('inputAge').value) || 29;
+            const newGender = document.getElementById('inputGender').value;
+            const newGoal = document.getElementById('inputGoal').value;
+            const newAct = parseFloat(document.getElementById('inputActivity').value) || 1.55;
+
+            state.profile = {
+                weight: newW,
+                targetWeight: newTargetW,
+                height: newH,
+                age: newAge,
+                gender: newGender,
+                goal: newGoal,
+                activity: newAct
+            };
+
+            if (state.weightHistory && state.weightHistory.length > 0) {
+                const lastEntry = state.weightHistory[state.weightHistory.length - 1];
+                if (Math.abs(lastEntry.weight - newW) >= 0.1) {
+                    state.weightHistory.push({
+                        id: 'w_' + Date.now(),
+                        label: `هفته ${faNum(state.weightHistory.length + 1)}`,
+                        weight: newW
+                    });
+                }
+            }
+
+            saveState();
+            renderAll();
+            const t = getTargets();
+            showToast(`بازشناسی شد: سهمیه جدید ${faNum(t.cal)} کالری ⚡`);
+        }
+
+        function addWeeklyWeightLog() {
+            const weightEl = document.getElementById('weeklyWeightInput');
+            const labelEl = document.getElementById('weeklyLabelInput');
+            const val = parseFloat(weightEl.value);
+
+            if (!val || val < 30 || val > 250) {
+                showToast('لطفاً وزن معتبر وارد کنید');
+                return;
+            }
+
+            const nextIndex = (state.weightHistory ? state.weightHistory.length : 0) + 1;
+            const label = (labelEl.value || '').trim() || `هفته ${faNum(nextIndex)}`;
+
+            state.weightHistory.push({
+                id: 'w_' + Date.now(),
+                label,
+                weight: Math.round(val * 10) / 10
+            });
+
+            state.profile.weight = Math.round(val * 10) / 10;
+            document.getElementById('inputWeight').value = state.profile.weight;
+
+            weightEl.value = '';
+            labelEl.value = '';
+
+            saveState();
+            renderAll();
+            showToast(`وزن ${faNum(val)} کیلو ثبت و بازشناسی شد 📈`);
+        }
+
+        function removeWeeklyWeight(id) {
+            if (state.weightHistory.length <= 1) {
+                showToast('حداقل یک رکورد وزن باید باقی بماند');
+                return;
+            }
+            state.weightHistory = state.weightHistory.filter(item => item.id !== id);
+            saveState();
+            renderAll();
+        }
+
+        function renderWeeklyWeightChart() {
+            const svg = document.getElementById('weeklyWeightSvg');
+            const listEl = document.getElementById('weeklyWeightHistoryList');
+            const goalBadge = document.getElementById('weightGoalBadge');
+            const diffSub = document.getElementById('weightDiffSubtitle');
+            if (!svg || !listEl) return;
+
+            const data = state.weightHistory || [];
+            const targetW = state.profile.targetWeight || 82;
+            goalBadge.textContent = `هدف: ${faNum(targetW)} کیلو`;
+
+            if (data.length > 0) {
+                const currentW = data[data.length - 1].weight;
+                const diff = Math.round((currentW - targetW) * 10) / 10;
+                diffSub.textContent = diff > 0
+                    ? `${faNum(diff)} کیلو تا رسیدن به هدف`
+                    : diff < 0
+                        ? `${faNum(Math.abs(diff))} کیلو کمتر از وزن هدف`
+                        : `دقیقاً در وزن هدف هستید! 🎯`;
+            }
+
+            listEl.innerHTML = data.map(item => `
+                <div class="shrink-0 flex items-center gap-1.5 bg-sp-card px-2.5 py-1.5 rounded-xl border border-white/5">
+                    <span class="text-[11px] font-bold text-sp-muted one-line">${item.label}:</span>
+                    <span class="text-xs font-black text-white one-line">${faNum(item.weight)}kg</span>
+                    <button onclick="removeWeeklyWeight('${item.id}')" class="text-sp-muted hover:text-rose-400 text-[10px] mr-0.5">✕</button>
+                </div>
+            `).join('');
+
+            const W = 320, H = 150;
+            const padL = 24, padR = 24, padT = 24, padB = 28;
+            const chartW = W - padL - padR;
+            const chartH = H - padT - padB;
+
+            const allWeights = [...data.map(d => d.weight), targetW];
+            const minW = Math.floor(Math.min(...allWeights) - 1.5);
+            const maxW = Math.ceil(Math.max(...allWeights) + 1.5);
+            const range = Math.max(2, maxW - minW);
+
+            const getX = (i) => data.length === 1
+                ? padL + chartW / 2
+                : padL + (i / (data.length - 1)) * chartW;
+            const getY = (w) => padT + chartH - ((w - minW) / range) * chartH;
+
+            const targetY = getY(targetW);
+
+            const points = data.map((d, idx) => ({
+                x: getX(idx),
+                y: getY(d.weight),
+                label: d.label,
+                weight: d.weight
+            }));
+
+            const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+            const areaPath = points.length > 1
+                ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${padT + chartH} L ${points[0].x.toFixed(1)} ${padT + chartH} Z`
+                : '';
+
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="spWeightGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#1DB954" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#1DB954" stop-opacity="0.0"/>
+                    </linearGradient>
+                </defs>
+                <line x1="${padL}" y1="${targetY}" x2="${W - padR}" y2="${targetY}" stroke="#1DB954" stroke-opacity="0.45" stroke-dasharray="4 4" stroke-width="1.5" />
+                <text x="${padL}" y="${targetY - 5}" fill="#1DB954" font-size="9" font-weight="800">هدف (${faNum(targetW)})</text>
+                ${areaPath ? `<path d="${areaPath}" fill="url(#spWeightGrad)" />` : ''}
+                <path d="${linePath}" fill="none" stroke="#1DB954" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                ${points.map(p => `
+                    <g>
+                        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#121212" stroke="#1DB954" stroke-width="2.5" />
+                        <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="800">${faNum(p.weight)}</text>
+                        <text x="${p.x}" y="${H - 7}" text-anchor="middle" fill="#A7A7A7" font-size="9" font-weight="600">${p.label}</text>
+                    </g>
+                `).join('')}
+            `;
+        }
+
+        function syncProfileInputs() {
+            const p = state.profile;
+            document.getElementById('inputWeight').value = p.weight;
+            document.getElementById('inputTargetWeight').value = p.targetWeight;
+            document.getElementById('inputHeight').value = p.height;
+            document.getElementById('inputAge').value = p.age;
+            document.getElementById('inputGender').value = p.gender;
+            document.getElementById('inputGoal').value = p.goal;
+            document.getElementById('inputActivity').value = p.activity;
+        }
+
+        function openCustomModal() {
+            const m = document.getElementById('customFoodModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeCustomModal() {
+            const m = document.getElementById('customFoodModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function handleSaveCustomFood(e) {
+            e.preventDefault();
+            const name = document.getElementById('custName').value.trim();
+            if (!name) return;
+            const newFood = {
+                id: 'c_' + Date.now(),
+                name,
+                emoji: '🍽️',
+                color: 'from-emerald-600 to-teal-900',
+                category: 'protein',
+                unitName: document.getElementById('custUnit').value.trim() || 'گرم',
+                baseAmount: parseFloat(document.getElementById('custBase').value) || 100,
+                step: 50,
+                cal: parseFloat(document.getElementById('custCal').value) || 150,
+                pro: parseFloat(document.getElementById('custPro').value) || 10,
+                carb: parseFloat(document.getElementById('custCarb').value) || 10,
+                fat: parseFloat(document.getElementById('custFat').value) || 5
+            };
+            state.customFoods.unshift(newFood);
+            state.meals.lunch.push({ uid: 'u_' + Date.now(), foodId: newFood.id, amount: newFood.baseAmount });
+            saveState();
+            closeCustomModal();
+            e.target.reset();
+            renderAll();
+            showToast(`${name} اضافه شد ✓`);
+        }
+
+        function showToast(text) {
+            const el = document.getElementById('spToast');
+            document.getElementById('spToastText').textContent = text;
+            el.classList.remove('opacity-0');
+            setTimeout(() => el.classList.add('opacity-0'), 1800);
+        }
+
+        function renderAll() {
+            renderHeroAndStats();
+            renderHomeMealsCards();
+            renderFoodSearchList();
+            renderMealsLibrary();
+            renderWeeklyWeightChart();
+        }
+
+        window.onload = function() {
+            loadState();
+            syncProfileInputs();
+            renderAll();
+        };
+    </script>
+</body>
+</html>
