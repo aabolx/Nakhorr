@@ -33,6 +33,14 @@ jobs:
           plugins { id 'com.android.application' }
           base { archivesName = 'nakhor' }
           android {
+              signingConfigs {
+                  nk {
+                      storeFile rootProject.file('nakhor.jks')
+                      storePassword 'nakhor123'
+                      keyAlias 'nakhor'
+                      keyPassword 'nakhor123'
+                  }
+              }
               namespace 'app.nakhor'
               compileSdk 34
               defaultConfig {
@@ -42,7 +50,10 @@ jobs:
                   versionCode 1
                   versionName '1.0'
               }
-              buildTypes { release { minifyEnabled false } }
+              buildTypes {
+                  debug { signingConfig signingConfigs.nk }
+                  release { minifyEnabled false; signingConfig signingConfigs.nk }
+              }
               compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF_3
@@ -110,6 +121,7 @@ jobs:
                   WebSettings s = web.getSettings();
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
+                  s.setDatabaseEnabled(true);
                   s.setAllowFileAccess(true);
                   s.setMediaPlaybackRequiresUserGesture(false);
                   s.setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -162,6 +174,38 @@ jobs:
               f=px*108//48
               crop(360).resize((f,f),Image.LANCZOS).save(R+f'mipmap-{d}/ic_fg.png')
           EOF_PY
+          echo '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' | base64 -d > nakhor.jks
+          python3 - <<'EOF_OFF'
+          import re,os,urllib.request
+          A='app/src/main/assets/'
+          UA='Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+          def get(u):
+              r=urllib.request.Request(u,headers={'User-Agent':UA})
+              return urllib.request.urlopen(r,timeout=60).read()
+          tw=get('https://cdn.tailwindcss.com/3.4.17')
+          assert len(tw)>50000,'tailwind download failed'
+          open(A+'tailwind.js','wb').write(tw)
+          h=open(A+'index.html',encoding='utf-8').read()
+          m=re.search(r'<link href="(https://fonts.googleapis.com/css2[^"]+)"[^>]*>',h)
+          assert m,'fonts link not found'
+          css=get(m.group(1)).decode()
+          os.makedirs(A+'fonts',exist_ok=True)
+          urls=sorted(set(re.findall(r'url\((https://[^)]+)\)',css)))
+          assert urls,'no font urls'
+          for i,u in enumerate(urls):
+              ext=u.split('?')[0].rsplit('.',1)[-1]
+              n=f'f{i}.{ext}'
+              open(A+'fonts/'+n,'wb').write(get(u))
+              css=css.replace(u,n)
+          assert 'https://' not in re.sub(r'/\*.*?\*/','',css,flags=re.S),'remote url left in css'
+          open(A+'fonts/fonts.css','w',encoding='utf-8').write(css)
+          h=h.replace(m.group(0),'<link href="fonts/fonts.css" rel="stylesheet">')
+          h=re.sub(r'<link rel="preconnect"[^>]*>\s*','',h)
+          h=h.replace('<script src="https://cdn.tailwindcss.com"></script>','<script src="tailwind.js"></script>')
+          assert 'cdn.tailwindcss.com' not in h and 'fonts.googleapis' not in h
+          open(A+'index.html','w',encoding='utf-8').write(h)
+          print('bundled',len(urls),'font files')
+          EOF_OFF
 
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.9 }
